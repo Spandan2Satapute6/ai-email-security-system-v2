@@ -1,0 +1,19 @@
+[project]
+name = "ai-email-security-system"
+version = "0.1.0"
+description = "AI Email Spam Detection OpenEnv Project"
+authors = [
+    {name = "Spandan Satapute"}
+]
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "scikit-learn",
+    "pydantic",
+    "openai",
+    "openenv"
+]
+
+[project.scripts]
+server = "server.app:main"
