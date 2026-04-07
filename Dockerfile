@@ -4,11 +4,12 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-# 🔥 upgrade pip safely
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
-
-# 🔥 install dependencies
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+
+# 🔥 ADD THIS BLOCK (CRITICAL FIX)
+RUN mkdir -p /usr/local/lib/python3.11/site-packages/openenv
+RUN echo "__version__ = '0.2.0'" > /usr/local/lib/python3.11/site-packages/openenv/__init__.py
 
 COPY . .
 
