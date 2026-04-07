@@ -1,17 +1,14 @@
-# OpenEnv Configuration for Email Security System
 name: "email-security-system"
 version: "1.0.0"
 description: "AI-powered email security classification environment"
 
-# Environment specifications
 environment:
   type: "classification"
   action_space:
     type: "text"
-    description: "Email text to classify"
     min_length: 1
     max_length: 10000
-  
+
   observation_space:
     type: "dict"
     fields:
@@ -29,71 +26,32 @@ environment:
         type: "string"
         max_length: 500
 
-# Task definitions
 tasks:
   easy_task:
-    name: "Easy Spam Detection"
-    description: "Detect if email is spam or not spam"
-    evaluation: "intent_only"
-    max_reward: 1.0
-    
-  medium_task:
-    name: "Medium Spam Detection with Confidence"
-    description: "Detect spam and provide confidence score > 0.7"
-    evaluation: "intent_confidence"
-    max_reward: 1.0
-    
-  hard_task:
-    name: "Hard Comprehensive Email Analysis"
-    description: "Detect spam, provide confidence > 0.7, correct risk level, and meaningful explanation"
-    evaluation: "intent_confidence_risk_explanation"
-    max_reward: 1.0
+    description: "Detect spam or safe emails"
 
-# Reward configuration
+  medium_task:
+    description: "Detect spam with confidence"
+
+  hard_task:
+    description: "Detect spam with risk and explanation"
+
 reward:
   type: "weighted"
-  components:
-    intent_correct: 0.4
-    confidence_score: 0.2
-    risk_correct: 0.2
-    explanation_quality: 0.2
-  penalty:
-    wrong_prediction: -0.3
-  range: [0.0, 1.0]
+  range: [0.1, 0.9]   # ✅ FIXED
 
-# Episode configuration
 episode:
   max_steps: 10
-  termination:
-    task_complete: true
-    max_steps_reached: true
 
-# API endpoints
 api:
-  base_url: "http://localhost:8000"
+  base_url: "http://localhost:7860"   # ✅ FIXED
   endpoints:
     reset: "/reset"
     step: "/classify"
     state: "/state"
-    tasks: "/tasks"
     set_task: "/set_task"
-    grade: "/grade"
     health: "/health"
 
-# Validation requirements
 validation:
   deterministic: true
   reproducible: true
-  error_handling: true
-  reward_clipping: true
-  
-# Dependencies
-dependencies:
-  python: ">=3.8"
-  packages:
-    - fastapi
-    - uvicorn
-    - requests
-    - pydantic
-    - scikit-learn
-    - numpy

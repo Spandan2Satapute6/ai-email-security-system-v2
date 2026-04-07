@@ -56,7 +56,7 @@ def classify_email(request: EmailRequest):
         if risk_level not in ["high", "low"]:
             risk_level = "high" if risk_score > 0.5 else "low"
 
-        # 🔥 FIX: reward always (0,1)
+        # 🔥 FIX: reward always between (0,1)
         reward = float(reward)
         reward = max(0.1, min(0.9, reward))
 
@@ -102,46 +102,6 @@ def get_state():
         "explanation": "Initial environment state",
         "reward": 0.5
     }
-
-
-# -------- GRADE --------
-@app.post("/grade", response_model=EmailResponse)
-def grade(task: str):
-    global step_counter
-
-    try:
-        step_counter += 1
-
-        # 🔥 FIX: NO 0.0 / NO 1.0
-        if task == "easy_task":
-            reward = 0.8
-        elif task == "medium_task":
-            reward = 0.6
-        elif task == "hard_task":
-            reward = 0.9
-        else:
-            reward = 0.5
-
-        return {
-            "intent": "spam",
-            "confidence": 0.85,
-            "risk_level": "high",
-            "risk_score": 0.8,
-            "explanation": "Detected email pattern based on analysis",
-            "reward": reward,
-            "step_count": step_counter
-        }
-
-    except Exception as e:
-        return {
-            "intent": "safe",
-            "confidence": 0.5,
-            "risk_level": "low",
-            "risk_score": 0.5,
-            "explanation": str(e),
-            "reward": 0.5,
-            "step_count": step_counter
-        }
 
 
 # -------- ROOT --------
