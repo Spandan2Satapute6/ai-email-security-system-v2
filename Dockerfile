@@ -2,11 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+# 🔥 Copy pyproject + lock file FIRST
+COPY pyproject.toml uv.lock ./
 
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# 🔥 Install uv
+RUN pip install --no-cache-dir uv
 
+# 🔥 Install dependencies from pyproject
+RUN uv pip install --system .
+
+# Copy rest of project
 COPY . .
 
 ENV PYTHONPATH=/app
