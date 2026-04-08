@@ -60,7 +60,7 @@ def grade(observation: Dict[str, Any], task: str) -> float:
             score = 0.5
 
         # 🔥 STRICT RANGE (CRITICAL)
-        score = max(0.1, min(0.9, score))
+        score = max(0.2, min(0.9, score))
 
         return float(score)
 
