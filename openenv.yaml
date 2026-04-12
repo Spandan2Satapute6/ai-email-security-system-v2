@@ -28,13 +28,19 @@ environment:
 
 tasks:
   easy_task:
+    name: "easy_task"
     description: "Detect spam or safe emails"
+    difficulty: "easy"
 
   medium_task:
+    name: "medium_task"
     description: "Detect spam with confidence"
+    difficulty: "medium"
 
   hard_task:
+    name: "hard_task"
     description: "Detect spam with risk and explanation"
+    difficulty: "hard"
 
 reward:
   type: "weighted"
