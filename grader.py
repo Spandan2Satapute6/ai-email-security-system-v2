@@ -1,6 +1,14 @@
 from typing import Dict, Any
 
 
+EPSILON = 1e-6
+
+
+def _strict_unit_interval(value: float) -> float:
+    """Clamp a numeric value to the open interval (0, 1)."""
+    return float(max(EPSILON, min(1.0 - EPSILON, float(value))))
+
+
 def grade(observation: Dict[str, Any], task: str) -> float:
     """
     Meta Phase 2 Absolute Bulletproof Grader - Extreme Safety Margins
@@ -14,8 +22,8 @@ def grade(observation: Dict[str, Any], task: str) -> float:
         risk = str(observation.get("risk_level", "low")).lower()
         explanation = str(observation.get("explanation", "")).lower()
 
-        # Clamp confidence to valid range
-        confidence = max(0.0, min(1.0, confidence))
+        # Clamp confidence to strict open interval
+        confidence = _strict_unit_interval(confidence)
 
         # -------- ABSOLUTE BULLETPROOF SCORES --------
         # Use fixed deterministic scores with extreme safety margins
@@ -31,17 +39,10 @@ def grade(observation: Dict[str, Any], task: str) -> float:
         else:
             score = 0.50  # Safe fallback
 
-        # ABSOLUTE FINAL CLAMP - EXTREME SAFETY
-        # Ensure score is strictly between 0.2 and 0.8
+        # Keep deterministic task spacing but enforce strict (0, 1).
         score = max(0.25, min(0.75, score))
-
-        # Double-check with decimal precision
-        if score <= 0.0 or score >= 1.0:
-            # Emergency fallback
-            return 0.50
-
-        return float(score)
+        return _strict_unit_interval(score)
 
     except Exception:
-        # Emergency fallback - guaranteed safe
-        return 0.50
+        # Emergency fallback - guaranteed strict open interval
+        return _strict_unit_interval(0.50)
