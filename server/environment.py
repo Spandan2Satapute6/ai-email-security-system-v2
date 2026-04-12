@@ -4,6 +4,14 @@ from pathlib import Path
 import pickle
 
 
+EPSILON = 1e-6
+
+
+def _strict_unit_interval(value: float) -> float:
+    """Clamp numeric scores to the open interval (0, 1)."""
+    return float(max(EPSILON, min(1.0 - EPSILON, float(value))))
+
+
 class EmailEnv:
     def __init__(self):
         self.current_task = None
@@ -30,9 +38,9 @@ class EmailEnv:
     def _safe_output(self, intent, confidence, explanation=""):
         return {
             "intent": str(intent),
-            "confidence": float(max(0.0, min(1.0, confidence))),
+            "confidence": _strict_unit_interval(confidence),
             "risk_level": "high" if intent in ["spam", "phishing"] else "low",
-            "risk_score": 0.8 if intent in ["spam", "phishing"] else 0.1,
+            "risk_score": _strict_unit_interval(0.8 if intent in ["spam", "phishing"] else 0.1),
             "explanation": explanation if explanation else f"Classified as {intent}"
         }
 
@@ -86,9 +94,9 @@ class EmailEnv:
             result = self._classify_email(action)
 
             intent = result.get("intent", "safe")
-            confidence = float(result.get("confidence", 0.5))
+            confidence = _strict_unit_interval(result.get("confidence", 0.5))
             risk_level = result.get("risk_level", "low")
-            risk_score = float(result.get("risk_score", 0.5))
+            risk_score = _strict_unit_interval(result.get("risk_score", 0.5))
             explanation = result.get("explanation", "")
 
             # -------- REWARD CALCULATION --------
@@ -108,7 +116,7 @@ class EmailEnv:
                 reward += 0.1
 
             # 🔥 FINAL FIX (STRICT RANGE)
-            reward = max(0.1, min(0.9, reward))
+            reward = _strict_unit_interval(max(0.1, min(0.9, reward)))
 
             observation = {
                 "intent": intent,
@@ -123,7 +131,7 @@ class EmailEnv:
                 "step_count": self.step_count
             }
 
-            return observation, float(reward), True, info
+            return observation, reward, True, info
 
         except Exception as e:
             observation = {
@@ -134,4 +142,4 @@ class EmailEnv:
                 "explanation": f"Error: {str(e)}"
             }
 
-            return observation, 0.1, True, {"error": str(e)}
+            return observation, _strict_unit_interval(0.1), True, {"error": str(e)}

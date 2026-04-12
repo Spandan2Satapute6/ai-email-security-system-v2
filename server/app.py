@@ -4,6 +4,14 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from server.environment import EmailEnv
 
+
+EPSILON = 1e-6
+
+
+def _strict_unit_interval(value: float) -> float:
+    """Clamp numeric scores to the open interval (0, 1)."""
+    return float(max(EPSILON, min(1.0 - EPSILON, float(value))))
+
 app = FastAPI(
     title="AI Email Security System",
     version="FINAL",
@@ -43,8 +51,8 @@ def classify_email(request: EmailRequest):
         observation, reward, done, info = env.step(request.text)
 
         intent = str(observation.get("intent", "safe"))
-        confidence = float(observation.get("confidence", 0.5))
-        risk_score = float(observation.get("risk_score", 0.5))
+        confidence = _strict_unit_interval(observation.get("confidence", 0.5))
+        risk_score = _strict_unit_interval(observation.get("risk_score", 0.5))
         explanation = str(observation.get("explanation", "No explanation"))
 
         # fix intent
@@ -57,8 +65,7 @@ def classify_email(request: EmailRequest):
             risk_level = "high" if risk_score > 0.5 else "low"
 
         # 🔥 FIX: reward always between (0,1)
-        reward = float(reward)
-        reward = max(0.1, min(0.9, reward))
+        reward = _strict_unit_interval(max(0.1, min(0.9, float(reward))))
 
         return {
             "intent": intent,

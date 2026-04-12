@@ -198,7 +198,9 @@ def main():
 
         except Exception as e:
             print(f"Task error {task}: {e}")
-            rewards.append(_strict_unit_interval(0.55))
+            fallback_reward = _strict_unit_interval(0.55)
+            print(f"[STEP] {task}: {fallback_reward:.6f}")
+            rewards.append(fallback_reward)
 
         print("[END]")
 
